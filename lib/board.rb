@@ -1,10 +1,15 @@
 class Board
-  BOARD_MAX_INDEX = 2
+  BOARD_MAX_INDEX = 5
   EMPTY_POS = '.'
+  PLAYERS = ['X', 'O'].freeze
   COMPUTER_PLAYER = 'X'
   HUMAN_PLAYER = 'O'
 
   attr_reader :board, :current_player
+
+  def self.players
+    PLAYERS
+  end
 
   def initialize(current_player)
     @current_player = current_player
@@ -27,17 +32,24 @@ class Board
   end
 
   def display
-    puts "+- - - - - -+"
+    bar_len = (4 * (BOARD_MAX_INDEX + 1)) - 1
+    bar_len = (6 * (BOARD_MAX_INDEX + 1)) - 1 if BOARD_MAX_INDEX > 2
+    puts "+#{'-' * bar_len}+"
     for row in 0 .. BOARD_MAX_INDEX
       print '| '
       for col in 0 .. BOARD_MAX_INDEX
-        s = @board[row][col]
-        s = col + (row * 3) + 1 if s == EMPTY_POS
-        print s
+        print get_label(row, col, @board[row][col])
         print ' | '
       end
-      puts "\n+- - - - - -+"
+      puts "\n+#{'-' * bar_len}+"
     end
+  end
+
+  def get_label(row, col, val)
+    label = val
+    label = (row * (BOARD_MAX_INDEX + 1) + col + 1).to_s if val == EMPTY_POS
+    label = sprintf('%3s', label) if BOARD_MAX_INDEX > 2
+    label
   end
 
   def full?
@@ -46,7 +58,7 @@ class Board
         return false if @board[row][col] == EMPTY_POS
       end
     end
-    return true
+    true
   end
 
   def winner
@@ -125,8 +137,7 @@ class Board
     while not played
       puts 'Player #{current_player}: Where would you like to play?'
       move = gets.to_i - 1
-      col = move % @board.size
-      row = (move - col) / @board.size
+      row, col = [move / @board.size, move % @board.size]
       if validate_position(row, col)
         @board[row][col] = current_player
         played = true
@@ -135,8 +146,7 @@ class Board
   end
 
   def computer_move(current_player)
-    row = -1
-    col = -1
+    row, col = [-1, -1]
     found = 'F'
 
     #check_rows(COMPUTER_PLAYER, found)
@@ -149,15 +159,13 @@ class Board
 
     if found == 'F'
       if @board[1][1] == EMPTY_POS
-        row = 1
-        col = 1
+        row, col = [1, 1]
         @board[row][col] = current_player
       #elsif available_corner()
       #  pick_corner(current_player)
       else
         until validate_position(row, col)
-          row = rand(@board.size)
-          col = rand(@board.size)
+          row, col = [rand(@board.size), rand(@board.size)]
         end
         @board[row][col] = current_player
       end
@@ -166,15 +174,12 @@ class Board
 
   def validate_position(row, col)
     if row <= @board.size and col <= @board.size
-      if @board[row][col] == EMPTY_POS
-        return true
-      else
-        puts 'That positon is occupie.'
-      end
+      return true if @board[row][col] == EMPTY_POS
+      puts 'That positon is occupie.'
     else
       puts 'Invalid position.'
     end
-    return false
+    false
   end
 
   def get_next_turn

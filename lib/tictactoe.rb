@@ -1,24 +1,23 @@
 
 require_relative 'board.rb'
 
-puts 'Starting tic-tac-toe...'
-puts
+puts 'Starting tic-tac-toe...\n'
 
-players = ['X', 'O']
-current_player = players[rand(2)]
+current_player = Board.players[rand(2)]
 b = Board.new(current_player)
-b.display()
+b.display
 
-while not b.full?() and not b.winner()
-  b.ask_player_for_move(current_player)
+while not b.full? and not b.winner
+  b.ask_player_for_move current_player
   puts "---------- #{current_player}"
-  current_player = b.get_next_turn()
-  b.display()
+  current_player = b.get_next_turn
+  b.display
   puts
 end
 
-if b.winner()
-  puts "player #{b.get_next_turn()} wins."
+winer = b.winner
+if winer
+  puts "player #{winer} wins."
 else
   puts 'Tie Game.'
 end
