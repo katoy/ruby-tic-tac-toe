@@ -1,8 +1,10 @@
 class Board
   BOARD_MAX_INDEX = 2
-  EMPTY_POS = ' '
+  EMPTY_POS = '.'
   COMPUTER_PLAYER = 'X'
   HUMAN_PLAYER = 'O'
+
+  attr_reader :board, :current_player
 
   def initialize(current_player)
     @current_player = current_player
@@ -13,17 +15,25 @@ class Board
     }
   end
 
+  def tos
+    ans = []
+    @board.each do |row|
+      row.each do |cel|
+        ans << cel
+      end
+    end
+    ans << @current_player
+    ans
+  end
+
   def display
     puts "+- - - - - -+"
     for row in 0 .. BOARD_MAX_INDEX
       print '| '
       for col in 0 .. BOARD_MAX_INDEX
         s = @board[row][col]
-        if s == EMPTY_POS
-          print col + (row * 3) + 1
-        else
-          print s
-        end
+        s = col + (row * 3) + 1 if s == EMPTY_POS
+        print s
         print ' | '
       end
       puts "\n+- - - - - -+"
@@ -33,9 +43,7 @@ class Board
   def full?
     for row in 0 .. BOARD_MAX_INDEX
       for col in 0 .. BOARD_MAX_INDEX
-        if @board[row][col] == EMPTY_POS
-          return false
-        end
+        return false if @board[row][col] == EMPTY_POS
       end
     end
     return true
@@ -43,19 +51,13 @@ class Board
 
   def winner
     winner = winner_rows()
-    if winner
-      return winner
-    end
+    return winner if winner
     winner = winner_cols()
-    if winner
-      return winner
-    end
+    return winner if winner
     winner = winner_diagonals()
-    if winner
-      return winner
-    end
+    return winner if winner
     # No winners
-    return
+    nil
   end
 
   def winner_rows
@@ -69,7 +71,7 @@ class Board
         end
       end
     end
-    return
+    nil
   end
 
   def winner_cols
@@ -83,7 +85,7 @@ class Board
         end
       end
     end
-    return
+    nil
   end
 
   def winner_diagonals
@@ -107,7 +109,7 @@ class Board
         return first_symbol
       end
     end
-    return
+    nil
   end
 
   def ask_player_for_move(current_player)
@@ -137,21 +139,21 @@ class Board
     col = -1
     found = 'F'
 
-    check_rows(COMPUTER_PLAYER, found)
-    check_cols(COMPUTER_PLAYER, found)
-    check_diagonals(COMPUTER_PLAYER, found)
+    #check_rows(COMPUTER_PLAYER, found)
+    #check_cols(COMPUTER_PLAYER, found)
+    #check_diagonals(COMPUTER_PLAYER, found)
 
-    check_rows(HUMAN_PLAYER, found)
-    check_cols(HUMAN_PLAYER, found)
-    check_diagonals(HUMAN_PLAYER, found)
+    #check_rows(HUMAN_PLAYER, found)
+    #check_cols(HUMAN_PLAYER, found)
+    #check_diagonals(HUMAN_PLAYER, found)
 
     if found == 'F'
       if @board[1][1] == EMPTY_POS
         row = 1
         col = 1
-        pboard[row][col] = current_player
-      elsif availabke_corner()
-        pick_corner(current_player)
+        @board[row][col] = current_player
+      #elsif available_corner()
+      #  pick_corner(current_player)
       else
         until validate_position(row, col)
           row = rand(@board.size)
@@ -176,12 +178,7 @@ class Board
   end
 
   def get_next_turn
-    if @current_player == 'X'
-      @current_player= 'O'
-    else
-      @current_player = 'X'
-    end
-    return @current_player
+    @current_player = @current_player == 'X' ? 'O' : 'X'
   end
 
 end

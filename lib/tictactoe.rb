@@ -18,7 +18,7 @@ while not b.full?() and not b.winner()
 end
 
 if b.winner()
-  puts 'player #{b.get_net_turn()} wins.'
+  puts "player #{b.get_next_turn()} wins."
 else
   puts 'Tie Game.'
 end
