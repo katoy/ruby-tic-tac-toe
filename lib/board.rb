@@ -1,23 +1,21 @@
+# -*- coding: utf-8 -*-
+
 class Board
-  BOARD_MAX_INDEX = 5
+  BOARD_MAX_INDEX = 2
   EMPTY_POS = '.'
-  PLAYERS = ['X', 'O'].freeze
-  COMPUTER_PLAYER = 'X'
-  HUMAN_PLAYER = 'O'
+  PLAYERS = %w(X O)
+  COMPUTER_PLAYER = PLAYERS[0]
+  HUMAN_PLAYER = PLAYERS[1]
 
   attr_reader :board, :current_player
 
-  def self.players
-    PLAYERS
-  end
-
   def initialize(current_player)
     @current_player = current_player
-    @board = Array.new(BOARD_MAX_INDEX + 1) {
-      Array.new(BOARD_MAX_INDEX + 1) {
+    @board = Array.new(BOARD_MAX_INDEX + 1) do
+      Array.new(BOARD_MAX_INDEX + 1) do
         EMPTY_POS
-      }
-    }
+      end
+    end
   end
 
   def tos
@@ -35,11 +33,10 @@ class Board
     bar_len = (4 * (BOARD_MAX_INDEX + 1)) - 1
     bar_len = (6 * (BOARD_MAX_INDEX + 1)) - 1 if BOARD_MAX_INDEX > 2
     puts "+#{'-' * bar_len}+"
-    for row in 0 .. BOARD_MAX_INDEX
+    (0 .. BOARD_MAX_INDEX).each do |row|
       print '| '
-      for col in 0 .. BOARD_MAX_INDEX
-        print get_label(row, col, @board[row][col])
-        print ' | '
+      (0 .. BOARD_MAX_INDEX).each do |col|
+        print "#{get_label(row, col, @board[row][col])} | "
       end
       puts "\n+#{'-' * bar_len}+"
     end
@@ -53,8 +50,8 @@ class Board
   end
 
   def full?
-    for row in 0 .. BOARD_MAX_INDEX
-      for col in 0 .. BOARD_MAX_INDEX
+    (0 .. BOARD_MAX_INDEX).each do |row|
+      (0 .. BOARD_MAX_INDEX).each do |col|
         return false if @board[row][col] == EMPTY_POS
       end
     end
@@ -62,66 +59,58 @@ class Board
   end
 
   def winner
-    winner = winner_rows()
+    winner = winner_rows
     return winner if winner
-    winner = winner_cols()
+    winner = winner_cols
     return winner if winner
-    winner = winner_diagonals()
+    winner = winner_diagonals_1
+    return winner if winner
+    winner = winner_diagonals_2
     return winner if winner
     # No winners
     nil
   end
 
   def winner_rows
-    for row_index in 0 .. BOARD_MAX_INDEX
-      first_symbol = @board[row_index][0]
-      for col_index in 1 .. BOARD_MAX_INDEX
-        if first_symbol != @board[row_index][col_index]
-          break
-        elsif col_index == BOARD_MAX_INDEX and first_symbol != EMPTY_POS
-          return first_symbol
-        end
+    (0 .. BOARD_MAX_INDEX).each do |row_idx|
+      winner = @board[row_idx][0]
+      next if winner == EMPTY_POS
+      (1 .. BOARD_MAX_INDEX).each do |col_idx|
+        winner = nil if winner != @board[row_idx][col_idx]
       end
+      return winner if winner
     end
     nil
   end
 
   def winner_cols
-    for col_index in 0 .. BOARD_MAX_INDEX
-      first_symbol = @board[0][col_index]
-      for row_index in 1 .. BOARD_MAX_INDEX
-        if first_symbol != @board[row_index][col_index]
-          break
-        elsif row_index == BOARD_MAX_INDEX and first_symbol != EMPTY_POS
-          return first_symbol
-        end
+    (0 .. BOARD_MAX_INDEX).each do |col_idx|
+      winner = @board[0][col_idx]
+      next if winner == EMPTY_POS
+      (1 .. BOARD_MAX_INDEX).each do |row_idx|
+        winner = nil if winner != @board[row_idx][col_idx]
       end
+      return winner if winner
     end
     nil
   end
 
-  def winner_diagonals
-    first_symbol = @board[0][0]
-    for index in 1 .. BOARD_MAX_INDEX
-      if first_symbol != @board[index][index]
-        break
-      elsif index == BOARD_MAX_INDEX and first_symbol != EMPTY_POS
-        return first_symbol
-      end
+  def winner_diagonals_1
+    winner = @board[0][0]
+    return nil if winner == EMPTY_POS
+    (1 .. BOARD_MAX_INDEX).each do |idx|
+      winner = nil if winner != @board[idx][idx]
     end
-    first_symbol = @board[0][BOARD_MAX_INDEX]
-    row_index = 0
-    col_index = BOARD_MAX_INDEX
-    while row_index < BOARD_MAX_INDEX
-      row_index = row_index + 1
-      col_index = col_index - 1
-      if first_symbol != @board[row_index][col_index]
-        break
-      elsif row_index == BOARD_MAX_INDEX and first_symbol != EMPTY_POS
-        return first_symbol
-      end
+    winner
+  end
+
+  def winner_diagonals_2
+    winner = @board[0][BOARD_MAX_INDEX]
+    return nil if winner == EMPTY_POS
+    (1 .. BOARD_MAX_INDEX).each do |idx|
+      winner = nil if winner != @board[idx][BOARD_MAX_INDEX - idx]
     end
-    nil
+    winner
   end
 
   def ask_player_for_move(current_player)
@@ -134,7 +123,7 @@ class Board
 
   def human_move(current_player)
     played = false
-    while not played
+    until played
       puts 'Player #{current_player}: Where would you like to play?'
       move = gets.to_i - 1
       row, col = [move / @board.size, move % @board.size]
@@ -149,41 +138,37 @@ class Board
     row, col = [-1, -1]
     found = 'F'
 
-    #check_rows(COMPUTER_PLAYER, found)
-    #check_cols(COMPUTER_PLAYER, found)
-    #check_diagonals(COMPUTER_PLAYER, found)
+    # check_rows(COMPUTER_PLAYER, found)
+    # check_cols(COMPUTER_PLAYER, found)
+    # check_diagonals(COMPUTER_PLAYER, found)
 
-    #check_rows(HUMAN_PLAYER, found)
-    #check_cols(HUMAN_PLAYER, found)
-    #check_diagonals(HUMAN_PLAYER, found)
+    # check_rows(HUMAN_PLAYER, found)
+    # check_cols(HUMAN_PLAYER, found)
+    # check_diagonals(HUMAN_PLAYER, found)
 
     if found == 'F'
       if @board[1][1] == EMPTY_POS
-        row, col = [1, 1]
-        @board[row][col] = current_player
-      #elsif available_corner()
+        @board[1][1] = current_player
+      # elsif available_corner()
       #  pick_corner(current_player)
       else
-        until validate_position(row, col)
-          row, col = [rand(@board.size), rand(@board.size)]
-        end
+        row, col = [rand(@board.size), rand(@board.size)]  until validate_position(row, col)
         @board[row][col] = current_player
       end
     end
   end
 
   def validate_position(row, col)
-    if row <= @board.size and col <= @board.size
+    if row <= @board.size && col <= @board.size
       return true if @board[row][col] == EMPTY_POS
-      puts 'That positon is occupie.'
+      puts 'That positon is occupie.' if @current_player != COMPUTER_PLAYER
     else
-      puts 'Invalid position.'
+      puts 'Invalid position.' if @current_player != COMPUTER_PLAYER
     end
     false
   end
 
-  def get_next_turn
+  def next_turn
     @current_player = @current_player == 'X' ? 'O' : 'X'
   end
-
 end
