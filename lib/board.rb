@@ -54,7 +54,7 @@ class Board
   end
 
   def read_rc(row, col)
-    throw "--- not empty #{row}, #{col}" unless validate_position(row, col)
+    throw "--- invalid position, #{rc_to_pos(row, col)} [#{row}, #{col}]" unless validate_position(row, col)
     @board[row][col]
   end
 
@@ -68,7 +68,7 @@ class Board
   end
 
   def write_rc(row, col, player)
-    throw "--- not empty #{row}, #{col}" unless validate_position_for_write(row, col)
+    throw "--- not empty #{rc_to_pos(row, col)} [#{row}, #{col}]" unless validate_position_for_write(row, col)
     @board[row][col] = player
     @history << [row, col]
   end
@@ -83,7 +83,7 @@ class Board
 
   def validate_position_for_write(row, col)
     return true if validate_position(row, col) && empty?(row, col)
-    puts 'That positon is occupie.' if @current_player != COMPUTER_PLAYER
+    puts 'That position is occupie.' if @current_player != COMPUTER_PLAYER
     false
   end
 
