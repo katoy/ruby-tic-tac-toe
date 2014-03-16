@@ -12,4 +12,3 @@ gem 'pry-doc'
 gem 'pry-debugger'
 
 gem 'coveralls', require: false
-''
