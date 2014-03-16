@@ -21,3 +21,7 @@ book "Computer Science Programming Basics in Ruby"  http://shop.oreilly.com/prod
 
 For debug, put "binding.pry" in *.rb (lib/**.rb, spec/**.rb)  
 
+TODO:
+
+Use minmax.  
+

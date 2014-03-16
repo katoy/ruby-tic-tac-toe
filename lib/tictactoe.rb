@@ -2,22 +2,32 @@
 
 require_relative 'board.rb'
 
-puts 'Starting tic-tac-toe...\n'
+def one_play(first_player)
+  b = Board.new(first_player).display
 
-current_player = rand(2)
-current_player = -1 if current_player == 0
-b = Board.new(current_player)
-b.display
+  current_player = first_player
+  until b.full? || b.winner
+    b.ask_player_for_move current_player
+    puts "---------- #{Board::PLAYERS[current_player]} : puts #{b.last_pos}"
+    current_player = b.display.next_turn
+  end
 
-until b.full?
-  break if b.winner
-  b.ask_player_for_move current_player
-  puts "---------- #{Board::PLAYERS[current_player]} : puts #{b.last_pos}"
-  current_player = b.next_turn
-  b.display
-  puts
+  winner = b.winner
+  puts winner ? "player '#{Board::PLAYERS[winner]}' wins." : 'Tie Game.'
+  puts 'Game Over.\n'
 end
 
-winner = b.winner
-puts winner ? "player '#{Board::PLAYERS[winner]}' wins." : 'Tie Game.'
-puts 'Game Over.'
+def game
+  puts 'Starting tic-tac-toe...\n'
+  first_player = rand(2)
+  first_player = -1 if first_player == 0
+
+  loop do
+    one_play(first_player)
+    puts 'Play again? y/n'
+    exit if gets.downcase.strip != 'y'
+  end
+end
+
+game
+
