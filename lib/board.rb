@@ -42,12 +42,9 @@ class Board
   end
 
   def last_pos
-    ans = ''
-    if @history.size > 0
-      row, col, _player = @history[-1]
-      ans = rc_to_pos(row, col)
-    end
-    ans
+    return '' if @history.size == 0
+    row, col, _player = @history[-1]
+    rc_to_pos(row, col)
   end
 
   def last_rc
@@ -143,10 +140,8 @@ class Board
   end
 
   def full?
-    (0 .. BOARD_MAX_INDEX).each do |row|
-      (0 .. BOARD_MAX_INDEX).each do |col|
-        return false if empty?(row, col)
-      end
+    (1 .. (BOARD_MAX_INDEX + 1) * (BOARD_MAX_INDEX + 1)).each do |pos|
+      return false if empty_pos?(pos)
     end
     true
   end
@@ -157,8 +152,7 @@ class Board
       (0 .. BOARD_MAX_INDEX).each { |idx| score += read_rc(line[idx][0], line[idx][1]) }
       return read_rc(line[0][0], line[0][1]) if score.abs == (BOARD_MAX_INDEX + 1)
     end
-    # No winners
-    nil
+    nil  # no winner
   end
 
   def ask_player_for_move(current_player, stdin = STDIN)
@@ -170,11 +164,8 @@ class Board
     loop do
       begin
         puts "Player #{PLAYERS[current_player]}: Where would you like to play?"
-        s = stdin.gets
-        pos = s.to_i
-        if 0 < pos && pos <= (BOARD_MAX_INDEX + 1) * (BOARD_MAX_INDEX + 1)
-          return write_pos(pos, current_player)
-        end
+        pos = stdin.gets.to_i
+        return write_pos(pos, current_player) if 0 < pos && pos <= (BOARD_MAX_INDEX + 1) * (BOARD_MAX_INDEX + 1)
       rescue => e
         puts e
       end
@@ -182,7 +173,8 @@ class Board
   end
 
   def computer_move(current_player)
-    moves = check_win(current_player) + check_win(-1 * current_player) + available_rc
+    moves = check_win(current_player) + check_win(-1 * current_player) +
+      can_writes(@centers).shuffle + can_writes(@corners).shuffle + emps.shuffle
     if moves.size > 0
       row, col = moves[0]
       write_rc(row, col, current_player)
@@ -191,23 +183,15 @@ class Board
 
   def check_win(player)
     ans = []
-    (0 .. BOARD_MAX_INDEX).each do |row|
-      (0 .. BOARD_MAX_INDEX).each do |col|
-        if empty?(row, col)
-          go_rc(row, col, player)
-          ans << [row, col] if winner == player
-          back_rc(row, col)
-        end
+    (1 .. (BOARD_MAX_INDEX + 1) * (BOARD_MAX_INDEX + 1)).each do |pos|
+      row, col = pos_to_rc(pos)
+      if empty?(row, col)
+        go_rc(row, col, player)
+        ans << [row, col] if winner == player
+        back_rc(row, col)
       end
     end
     ans
-  end
-
-  def available_rc
-    # Centers, Corners, Empties
-    cent = can_writes(@centers)
-    corns = can_writes(@corners)
-    cent.shuffle + corns.shuffle + (emps - cent - corns).shuffle
   end
 
   def can_writes(pos_set)
@@ -218,7 +202,7 @@ class Board
 
   def emps
     ans = []
-    (1 .. (BOARD_MAX_INDEX * BOARD_MAX_INDEX)).each { |pos| ans << pos if empty_pos?(pos) }
+    (1 .. (BOARD_MAX_INDEX + 1) * (BOARD_MAX_INDEX + 1)).each { |pos| ans << pos if empty_pos?(pos) }
     ans.map { |pos| pos_to_rc(pos) }
   end
 
