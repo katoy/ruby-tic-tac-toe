@@ -1,6 +1,7 @@
 
 [![Build Status](https://travis-ci.org/katoy/ruby-tic-tac-toe.png?branch=master)](https://travis-ci.org/katoy/ruby-tic-tac-toe)
 [![Dependency Status](https://gemnasium.com/katoy/ruby-tic-tac-toe.png)](https://gemnasium.com/katoy/ruby-tic-tac-toe)
+[![Coverage Status](https://coveralls.io/repos/katoy/ruby-tic-tac-toe/badge.png)](https://coveralls.io/r/katoy/ruby-tic-tac-toe)
 
 book "Computer Science Programming Basics in Ruby"  http://shop.oreilly.com/product/0636920028192.do  
 の中の  tic-tac-toe のコード。  
