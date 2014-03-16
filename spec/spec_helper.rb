@@ -8,6 +8,10 @@
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 require 'simplecov'
 require 'simplecov-rcov'
+
+require 'coveralls'
+Coveralls.wear!
+''
 SimpleCov.formatter = SimpleCov::Formatter::RcovFormatter
 
 SimpleCov.start
