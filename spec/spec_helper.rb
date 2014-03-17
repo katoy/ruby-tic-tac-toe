@@ -10,10 +10,12 @@ require 'simplecov'
 require 'simplecov-rcov'
 
 require 'coveralls'
-Coveralls.wear!
 
-SimpleCov.formatter = SimpleCov::Formatter::RcovFormatter
-
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+                                                           SimpleCov::Formatter::RcovFormatter,
+                                                           # SimpleCov::Formatter::HTMLFormatter,
+                                                           Coveralls::SimpleCov::Formatter
+                                                          ]
 SimpleCov.start
 
 RSpec.configure do |config|

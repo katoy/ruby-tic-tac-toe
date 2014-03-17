@@ -35,6 +35,15 @@ describe Board do
     end
   end
 
+  context '#emps' do
+    it 'emps' do
+      b = Board.new(1)
+      expect(b.emps).to eq([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]])
+      b.write_rc(1, 1, 1).write_rc(0, 0, -1).write_rc(0, 2, 1).write_rc(2, 0, 1).write_rc(2, 2, -1)
+      expect(b.emps).to eq([[0, 1], [1, 0], [1, 2], [2, 1]])
+    end
+  end
+
   context '#write_pos' do
     it 'move valid' do
       b = Board.new(1)

@@ -2,6 +2,8 @@
 
 class Board
   BOARD_MAX_INDEX = 2
+  BOARD_DIM = BOARD_MAX_INDEX + 1
+  BOARD_LEN = BOARD_DIM * BOARD_DIM
   PLAYERS = { -1 => 'X', 1 => 'O', 0 => ' ' }
   COMPUTER_PLAYER = -1
   HUMAN_PLAYER = 1
@@ -10,14 +12,14 @@ class Board
   attr_reader :current_player, :centers, :corners, :lines
 
   def initialize(current_player)
-    @current_player = current_player
-    @history = []
-    @board = []
-    (0 .. BOARD_MAX_INDEX).each { |x| @board << [EMPTY_POS] * (BOARD_MAX_INDEX + 1) }
+    @current_player = current_player  # 1 or -1
+    @history = []                     # Array of [pos, player], ...
+    @board = []                       # board[row][col] = 1 or -1 or 0
+    (0 .. BOARD_MAX_INDEX).each { |x| @board << [EMPTY_POS] * BOARD_DIM }
 
     @corners = [[0, 0], [0, BOARD_MAX_INDEX], [BOARD_MAX_INDEX, 0], [BOARD_MAX_INDEX, BOARD_MAX_INDEX]].freeze
-    crow, ccol = [BOARD_MAX_INDEX / 2, BOARD_MAX_INDEX / 2]
 
+    crow, ccol = [BOARD_MAX_INDEX / 2, BOARD_MAX_INDEX / 2]
     @centers = [[crow, ccol]]
     @corners += [[crow + 1, ccol], [crow, ccol + 1], [crow + 1, ccol + 1]] if BOARD_MAX_INDEX.odd?
     @centers.freeze
@@ -29,7 +31,7 @@ class Board
         v_line << [y, -1]
         h_line << [-1, y]
       end
-      (0 .. BOARD_MAX_INDEX).each { |z| v_line[z][1], h_line[z][0] = [x, x] }
+      (0 .. BOARD_MAX_INDEX).each { |y| v_line[y][1], h_line[y][0] = [x, x] }
       @lines += [v_line, h_line]
     end
     d1, d2 = [[], []]
@@ -43,8 +45,7 @@ class Board
 
   def last_pos
     return '' if @history.size == 0
-    row, col, _player = @history[-1]
-    rc_to_pos(row, col)
+    @history[-1][0]
   end
 
   def last_rc
@@ -61,11 +62,11 @@ class Board
   end
 
   def pos_to_rc(pos)
-    [(pos - 1) / (BOARD_MAX_INDEX + 1), (pos - 1) % (BOARD_MAX_INDEX + 1)]
+    [(pos - 1) / BOARD_DIM, (pos - 1) % BOARD_DIM]
   end
 
   def rc_to_pos(row, col)
-    row * (BOARD_MAX_INDEX + 1) + col + 1
+    row * BOARD_DIM + col + 1
   end
 
   def read_pos(pos)
@@ -79,8 +80,7 @@ class Board
   end
 
   def empty_pos?(pos)
-    row, col = pos_to_rc(pos)
-    empty?(row, col)
+    read_pos(pos) == EMPTY_POS
   end
 
   def empty?(row, col)
@@ -95,7 +95,7 @@ class Board
   def write_rc(row, col, player)
     throw "--- not empty #{rc_to_pos(row, col)} [#{row}, #{col}]" unless validate_position_for_write(row, col)
     @board[row][col] = player
-    @history << [row, col, player]
+    @history << [rc_to_pos(row, col), player]
     self
   end
 
@@ -115,14 +115,14 @@ class Board
   end
 
   def validate_position(row, col)
-    return true if row <= (BOARD_MAX_INDEX + 1) && col <= (BOARD_MAX_INDEX + 1)
+    return true if row <= BOARD_DIM && col <= BOARD_DIM
     puts 'Invalid position.' if @current_player != COMPUTER_PLAYER
     false
   end
 
   def display
-    bar_len = (4 * (BOARD_MAX_INDEX + 1)) - 1
-    bar_len = (6 * (BOARD_MAX_INDEX + 1)) - 1 if BOARD_MAX_INDEX > 2
+    bar_len = 4 * BOARD_DIM - 1
+    bar_len = 6 * BOARD_DIM - 1 if BOARD_MAX_INDEX > 2
     puts "+#{'-' * bar_len}+ "
     (0 .. BOARD_MAX_INDEX).each do |row|
       print '| '
@@ -134,13 +134,13 @@ class Board
 
   def get_label(row, col, val)
     label = PLAYERS[val]
-    label = (row * (BOARD_MAX_INDEX + 1) + col + 1).to_s if val == EMPTY_POS
+    label = (row * BOARD_DIM + col + 1).to_s if val == EMPTY_POS
     label = format('%3s', label) if BOARD_MAX_INDEX > 2
     label
   end
 
   def full?
-    (1 .. (BOARD_MAX_INDEX + 1) * (BOARD_MAX_INDEX + 1)).each do |pos|
+    (1 .. BOARD_LEN).each do |pos|
       return false if empty_pos?(pos)
     end
     true
@@ -150,7 +150,7 @@ class Board
     @lines.each do |line|
       score = 0
       (0 .. BOARD_MAX_INDEX).each { |idx| score += read_rc(line[idx][0], line[idx][1]) }
-      return read_rc(line[0][0], line[0][1]) if score.abs == (BOARD_MAX_INDEX + 1)
+      return read_rc(line[0][0], line[0][1]) if score.abs == BOARD_DIM
     end
     nil  # no winner
   end
@@ -165,7 +165,7 @@ class Board
       begin
         puts "Player #{PLAYERS[current_player]}: Where would you like to play?"
         pos = stdin.gets.to_i
-        return write_pos(pos, current_player) if 0 < pos && pos <= (BOARD_MAX_INDEX + 1) * (BOARD_MAX_INDEX + 1)
+        return write_pos(pos, current_player) if 0 < pos && pos <= BOARD_LEN
       rescue => e
         puts e
       end
@@ -183,7 +183,7 @@ class Board
 
   def check_win(player)
     ans = []
-    (1 .. (BOARD_MAX_INDEX + 1) * (BOARD_MAX_INDEX + 1)).each do |pos|
+    (1 .. BOARD_LEN).each do |pos|
       row, col = pos_to_rc(pos)
       if empty?(row, col)
         go_rc(row, col, player)
@@ -202,7 +202,7 @@ class Board
 
   def emps
     ans = []
-    (1 .. (BOARD_MAX_INDEX + 1) * (BOARD_MAX_INDEX + 1)).each { |pos| ans << pos if empty_pos?(pos) }
+    (1 .. BOARD_LEN).each { |pos| ans << pos if empty_pos?(pos) }
     ans.map { |pos| pos_to_rc(pos) }
   end
 
