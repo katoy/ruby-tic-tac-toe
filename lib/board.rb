@@ -99,13 +99,14 @@ class Board
     self
   end
 
-  def go_rc(row, col, player)
-    @board[row][col] = player
+  def go_pos(pos, player)
+    row, col = pos_to_rc(pos)
+    @board[row][col] = player  # no-change @history
   end
 
-  def back_rc(row, col)
-    @board[row][col] = EMPTY_POS
-    self
+  def back_pos(pos)
+    row, col = pos_to_rc(pos)
+    @board[row][col] = EMPTY_POS # no-change @history
   end
 
   def validate_position_for_write(row, col)
@@ -175,20 +176,27 @@ class Board
   def computer_move(current_player)
     moves = check_win(current_player) + check_win(-1 * current_player) +
       can_writes(@centers).shuffle + can_writes(@corners).shuffle + emps.shuffle
-    if moves.size > 0
+    if lose_pattern?
+      write_pos(2, current_player)
+    elsif moves.size > 0
       row, col = moves[0]
       write_rc(row, col, current_player)
     end
   end
 
+  def lose_pattern?
+    @history.size == 3 &&
+      ((read_pos(5) == -1 && read_pos(1) == 1 && read_pos(9) == 1) ||
+       (read_pos(5) == -1 && read_pos(3) == 1 && read_pos(7) == 1))
+  end
+
   def check_win(player)
     ans = []
     (1 .. BOARD_LEN).each do |pos|
-      row, col = pos_to_rc(pos)
-      if empty?(row, col)
-        go_rc(row, col, player)
-        ans << [row, col] if winner == player
-        back_rc(row, col)
+      if empty_pos?(pos)
+        go_pos(pos, player)
+        ans << pos_to_rc(pos) if winner == player
+        back_pos(pos)
       end
     end
     ans

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 require 'spec_helper'
-require 'board.rb'
 require 'pp'
 
 describe Board do
@@ -357,6 +356,29 @@ describe Board do
         expect(b.winner).to eq(1)
       end
     end
+  end
+
+  context 'Lose patterm' do
+    it 'shoud not lose special pattern 1' do
+      b = Board.new(1)
+      b.write_pos(1, 1)
+      b.write_pos(5, -1)
+      b.write_pos(9, 1)
+      b.computer_move(-1)
+      expect(b.read_pos(3)).to eq(0)
+      expect(b.read_pos(7)).to eq(0)
+    end
+
+    it 'shoud not lose special pattern 1' do
+      b = Board.new(1)
+      b.write_pos(3, 1)
+      b.write_pos(5, -1)
+      b.write_pos(7, 1)
+      b.computer_move(-1)
+      expect(b.read_pos(1)).to eq(0)
+      expect(b.read_pos(9)).to eq(0)
+    end
+
   end
 
 end
