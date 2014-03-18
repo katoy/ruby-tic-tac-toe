@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require 'spec_helper'
+require 'board.rb'
 require 'pp'
 
 describe Board do
