@@ -14,11 +14,11 @@ def one_play(first_player)
 
   winner = b.winner
   puts winner ? "player '#{Board::PLAYERS[winner]}' wins." : 'Tie Game.'
-  puts 'Game Over.\n'
+  puts 'Game Over.'
 end
 
 def game
-  puts 'Starting tic-tac-toe...\n'
+  puts 'Starting tic-tac-toe...'
   first_player = rand(2)
   first_player = -1 if first_player == 0
 
