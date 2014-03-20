@@ -21,7 +21,7 @@ class Board
 
     crow, ccol = [BOARD_MAX_INDEX / 2, BOARD_MAX_INDEX / 2]
     @centers = [[crow, ccol]]
-    @corners += [[crow + 1, ccol], [crow, ccol + 1], [crow + 1, ccol + 1]] if BOARD_MAX_INDEX.odd?
+    @centers += [[crow + 1, ccol], [crow, ccol + 1], [crow + 1, ccol + 1]] if BOARD_MAX_INDEX.odd?
     @centers.freeze
 
     @lines = []
