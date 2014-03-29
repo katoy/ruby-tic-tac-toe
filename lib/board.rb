@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'benchmark'
-''
+
 module T3Config
   BOARD_MAX_INDEX = 2
   BOARD_DIM = BOARD_MAX_INDEX + 1
@@ -134,18 +134,6 @@ module T3Config
     nil
   end
 
-  def check_win(player)
-    ans = []
-    (1 .. BOARD_LEN).each do |pos|
-      if empty_pos?(pos)
-        go_pos(pos, player)
-        ans << pos_to_rc(pos) if winner == player
-        back_pos(pos)
-      end
-    end
-    ans
-  end
-
   def emps
     ans = []
     (1 .. BOARD_LEN).each { |pos| ans << pos if empty_pos?(pos) }
@@ -161,7 +149,6 @@ module T3Config
   def next_turn
     @current_player = (-1) * @current_player
   end
-
 end
 
 class Stage
@@ -250,16 +237,6 @@ class Board
   #  @board.transpose.reverse
   # end
 
-  def go_pos(pos, player)
-    row, col = pos_to_rc(pos)
-    @board[row][col] = player  # no-change @history
-  end
-
-  def back_pos(pos)
-    row, col = pos_to_rc(pos)
-    @board[row][col] = EMPTY_POS # no-change @history
-  end
-
   def ask_player_for_move(current_player, stdin = STDIN)
     (current_player == COMPUTER_PLAYER) ? computer_move(current_player) : human_move(current_player, stdin)
     self
@@ -275,17 +252,6 @@ class Board
       rescue => e
         puts e
       end
-    end
-  end
-
-  def computer_move_x(current_player)
-    moves = check_win(current_player) + check_win(-1 * current_player) +
-      can_writes(CENTERS).shuffle + can_writes(CORNERS).shuffle + emps.shuffle
-    if lose_pattern?
-      write_pos(2, current_player)
-    elsif moves.size > 0
-      row, col = moves[0]
-      write_rc(row, col, current_player)
     end
   end
 
@@ -308,11 +274,5 @@ class Board
     end
     @stages = move
     write_pos(move.pos, current_player)
-  end
-
-  def lose_pattern?
-    @history.size == 3 &&
-      ((read_pos(5) == -1 && read_pos(1) == 1 && read_pos(9) == 1) ||
-       (read_pos(5) == -1 && read_pos(3) == 1 && read_pos(7) == 1))
   end
 end
