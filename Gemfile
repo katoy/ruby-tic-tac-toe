@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem 'rspec'
+gem 'rspec', '~>2.99.0'
 gem 'guard'
 gem 'guard-rspec'
 
@@ -9,6 +9,6 @@ gem 'simplecov-rcov'
 
 gem 'pry'
 gem 'pry-doc'
-gem 'pry-debugger'
+# gem 'pry-debugger'
 
 gem 'coveralls', require: false
